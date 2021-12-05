@@ -29,6 +29,9 @@ public class UI {
 	public static final int CMD_DEMOLISH = 14;
 	public static final int CMD_CARD = 15;
 	public static final int CMD_PAY = 16;
+	public static final int CMD_LOAN = 17;
+	public static final int CMD_LOAN_REPAY = 18;
+	public static final int CMD_DEAL = 19;
 	
 	public static final int ERR_SYNTAX = 0;
 	public static final int ERR_DOUBLE_ROLL = 1;
@@ -51,6 +54,8 @@ public class UI {
 	public static final int ERR_NOT_A_PROPERTY = 18;
 	public static final int ERR_DOES_NOT_HAVE_GET_OUT_OF_JAIL_CARD = 19;
 	public static final int ERR_NOT_IN_JAIL = 20;
+	public static final int ERR_TOO_LOW = 20;
+
 	
 	private final String[] errorMessages = {
 		"Error: Not a valid command.",
@@ -73,7 +78,8 @@ public class UI {
 		"Error: Cannot end a turn with a negative bank balance.",
 		"Error: You are not on a property.",
 		"Error: You do not have a get out of jail free card.",
-		"Error: You are not in jail."
+		"Error: You are not in jail.",
+		"Error: the amount is too low."
 	};
 	
 	private JFrame frame = new JFrame();
@@ -137,12 +143,17 @@ public class UI {
 	private boolean hasTwoArguments (String[] words) {
 		return (words.length==3);
 	}
+
+	private boolean hasThreeArguments (String[] words) {
+		return (words.length==4);
+	}
 	
 	public void inputCommand (Player player) {
 		boolean inputValid = false;
 		do {
 			infoPanel.displayString(player + " type your command:");
-			string = bots[player.getTokenId()].getCommand();
+			commandPanel.inputString();
+			string = commandPanel.getString();
 			infoPanel.displayString("> " + string);
 			string = string.toLowerCase();
 			string = string.trim();
@@ -223,11 +234,28 @@ public class UI {
 					commandId = CMD_PAY;
 					inputValid = true;
 					break;
+				case "repay" :
+					commandId = CMD_LOAN_REPAY;
+					if (hasOneArgument(words)){
+						inputNumber = Integer.parseInt(words[1]);
+					}
+					inputValid = true;
+					break;
 				case "help" :
 					commandId = CMD_HELP;
 					inputValid = hasOneArgument(words);
 					inputValid = true;
 					break;
+				/*case "deal" :
+					commandId = CMD_DEAL;
+					if (hasThreeArguments(words) && board.isSite(words[1])) { 
+						inputProperty = board.getProperty(words[1]);
+						inputNumber = Integer.parseInt(words[2]);
+						inputValid = true;
+					} else {
+						inputValid = false;
+					}
+					break;*/
 				default:
 					inputValid = false;
 				}
@@ -350,13 +378,13 @@ public class UI {
 	}
 	
 	public void displayCommandHelp () {
-		infoPanel.displayString("Available commands: roll, buy, pay rent, build, demolish, mortgage, redeem, bankrupt, property, balance, done, quit. ");
+		infoPanel.displayString("Available commands: roll, buy, pay rent, build, demolish, mortgage, redeem, bankrupt, property, balance, done, loan, quit. ");
 		infoPanel.displayString("Available commands in jail: roll, card, pay. ");
 		return;
 	}
 	
 	public void displayBalance (Player player) {
-		infoPanel.displayString(player + "'s balance is " + player.getBalance() + CURRENCY + ".");
+		infoPanel.displayString(player + "'s balance is " + player.getBalance() + CURRENCY + "." + " debt is " + player.getDebt() + CURRENCY + ".");
 		return;
 	}
 	

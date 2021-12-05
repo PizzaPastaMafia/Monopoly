@@ -25,7 +25,10 @@ public class Monopoly {
 	private static final String[] BOT_NAMES = {"CessnaSkyhawk"};
 	
 	Monopoly (String[] args) {
-		setupBots(args);
+		//setupBots(args);
+		players.add(new Player("Player 1", BoardPanel.TOKEN_NAME[0], 0));
+		players.add(new Player("Player 2", BoardPanel.TOKEN_NAME[1], 1));
+
 		ui = new UI(players, board, bots);
 		ui.display();
 		return;
@@ -449,6 +452,30 @@ public class Monopoly {
 		}
 		return;			
 	}
+
+	private int percent(int num, int percent) {
+		return (num*percent)/100;
+	}
+
+	private void loanCommand () {
+		int loan = ui.getInputNumber();
+		if (loan>0) {
+			currPlayer.doTransaction(loan);
+			currPlayer.addDebt(loan + percent(loan, 5));
+		} else {
+			ui.displayError(UI.ERR_TOO_LOW);
+		}
+	}
+
+	private void repayLoanCommand () {
+		int amount = ui.getInputNumber();
+		if (amount>0 && amount<= currPlayer.getDebt() && currPlayer.getBalance()>=amount && currPlayer.getDebt()>0) {
+			currPlayer.doTransaction(-amount);
+			currPlayer.payDebt(amount);
+		} else {
+			ui.displayError(UI.ERR_TOO_LOW);
+		}
+	}
 	
 	private void doneCommand () {
 		if (rollDone) {
@@ -506,6 +533,12 @@ public class Monopoly {
 					break;
 				case UI.CMD_HELP :
 					ui.displayCommandHelp();
+					break;
+				case UI.CMD_LOAN :
+					loanCommand();
+					break;
+				case UI.CMD_LOAN_REPAY :
+					repayLoanCommand();
 					break;
 				case UI.CMD_DONE :
 					doneCommand();

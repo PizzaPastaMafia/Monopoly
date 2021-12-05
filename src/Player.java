@@ -14,6 +14,7 @@ public class Player implements PlayerAPI {
 	private ArrayList<Property> properties = new ArrayList<Property>();
 	private boolean inJail;
 	private int numJailExitAttempts;
+	private int debt;
 	private ArrayList<Card> cards = new ArrayList<Card>();
 	
 // CONSTRUCTORS
@@ -26,6 +27,7 @@ public class Player implements PlayerAPI {
 		balance = 0;
 		passedGo = false;
 		inJail = false;
+		debt = 0;
 		return;
 	}
 	
@@ -150,6 +152,23 @@ public class Player implements PlayerAPI {
 			assets = assets + property.getPrice();
 		}
 		return assets;
+	}
+
+	public void addDebt (int amount) {
+		debt += amount;
+		return;
+	}
+
+	public void payDebt (int amount) {
+		if(debt > 0 && amount < debt && amount > 0) {
+			balance -= amount;
+			debt -= amount;
+		}
+		return;
+	}
+
+	public int getDebt () {
+		return debt;
 	}
 	
 //  METHODS DEALING WITH PROPERTY
